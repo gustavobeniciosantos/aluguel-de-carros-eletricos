@@ -1,9 +1,44 @@
 // PurchaseScreen.js
 import React, { useState } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function PurchaseScreen({ route, navigation }) {
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: 35,
+      width: '80%',
+      marginHorizontal: 'auto',
+      
+    },
+    button: {
+      backgroundColor: '#034464',
+        paddingVertical: 10,
+        width: '80%',
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    textButton: {
+      paddingTop: 1,
+      fontSize: 15,
+      fontWeight: 'bold',
+      color: 'white',
+    },
+    textBox: {
+      fontSize: 18,
+      fontWeight: 'Montserrat',
+      color: 'black',
+    },
+    text: {
+      fontSize: 40,
+      fontWeight: 'bold',
+      color: '#211e1f',
+    },
+  }
+  )
   const { car } = route.params;
   const [pickupDate, setPickupDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
@@ -60,30 +95,25 @@ export default function PurchaseScreen({ route, navigation }) {
 
   const handlePurchase = () => {
     navigation.navigate('Success');
-    handleConfirmRent();
+    //handleConfirmRent();
   };
 
   return (
-    <View>
-      <Text>{selectedCar.name}</Text>
-      <Text>Valor por dia: R$ {selectedCar.valorPorDia.toFixed(2)}</Text>
+    <View style={styles.container}>
+      <Text style={styles.text}>{selectedCar.name}</Text>
+      <Text style={styles.textBox}>Valor por dia: R$ {selectedCar.valorPorDia.toFixed(2)}</Text>
 
-      <Text>Selecione as datas de retirada e devolução</Text>
+      <Text style={styles.textBox}>Selecione as datas de retirada e devolução</Text>
 
-      <Button
-        title={`Retirada: ${pickupDate ? pickupDate.toDateString() : 'Selecionar Data'}`}
-        onPress={() => showDatepicker('pickup')}
-      />
-      <Button
-        title={`Devolução: ${returnDate ? returnDate.toDateString() : 'Selecionar Data'}`}
-        onPress={() => showDatepicker('return')}
-      />
-
+      <TouchableOpacity style={styles.button}
+        onPress={() => showDatepicker('pickup')}><Text style={styles.textButton}>{`Retirada: ${pickupDate ? pickupDate.toDateString() : 'Selecionar Data'}`}</Text></TouchableOpacity>
+      <TouchableOpacity style={styles.button}
+        onPress={() => showDatepicker('return')}><Text style={styles.textButton}>{`Devolução: ${returnDate ? returnDate.toDateString() : 'Selecionar Data'}`}</Text></TouchableOpacity>
       {showDatePicker && (
         <DateTimePicker value={new Date()} mode="date" display="default" onChange={(event, selectedDate) => onChange(event, selectedDate, dateType)} />
       )}
 
-      <Button title="Confirmar Compra" onPress={handlePurchase} />
+      <TouchableOpacity style={styles.button} onPress={handlePurchase}><Text style={styles.textButton}>Confirmar compra</Text></TouchableOpacity>
     </View>
   );
 }
