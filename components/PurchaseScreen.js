@@ -1,21 +1,18 @@
-
-import React from 'react';
+// PurchaseScreen.js
+import React, { useState } from 'react';
 import { View, Text, Button } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useState } from 'react';
 
-export default function PurchaseScreen({ navigation }) {
-  const handlePurchase = () => {
-    
-    navigation.navigate('Success');
-    
-  };
+export default function PurchaseScreen({ route, navigation }) {
+  const { car } = route.params;
+  const [pickupDate, setPickupDate] = useState(null);
+  const [returnDate, setReturnDate] = useState(null);
+  const [dateType, setDateType] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(car);
+  const [totalCost, setTotalCost] = useState(0);
 
-const [pickupDate, setPickupDate] = useState(null);
-const [returnDate, setReturnDate] = useState(null);
-const [dateType, setDateType] = useState('');
-
-const calculateTotalCost = () => {
+  const calculateTotalCost = () => {
     if (pickupDate && returnDate) {
       const timeDifference = returnDate.getTime() - pickupDate.getTime();
       const daysDifference = Math.ceil(timeDifference / (1000 * 3600 * 24));
@@ -23,64 +20,70 @@ const calculateTotalCost = () => {
     }
     return 0;
   };
+  
 
   const showDatepicker = (dateType) => {
     setShowDatePicker(true);
-    setDateType(dateType)
+    setDateType(dateType);
   };
-
 
   const handleConfirmRent = () => {
     const daysDifference = calculateTotalCost();
-  
+
     if (selectedCar && daysDifference > 0) {
       const total = daysDifference * selectedCar.valorPorDia;
       setTotalCost(total);
-  
-      const message = `Carro alugado com sucesso!\nValor total: R$ ${total.toFixed(2)}\nData de retirada: ${pickupDate ? pickupDate.toDateString() : 'N/A'}`;
-      setPopupMessage(message);
-      setPopupVisible(true);
-      setDetailsModalVisible(false);
+
+      const message = `Carro alugado com sucesso!`;
+
+      navigation.navigate('Success', {
+        message,
+        total,
+        pickupDate: pickupDate ? pickupDate.toDateString() : 'N/A',
+        returnDate: returnDate ? returnDate.toDateString() : 'N/A',
+      });
     } else {
-      console.log("teste")
+      console.log('teste');
     }
   };
-  
-  const onChange = (event, selectedDate) => {
+
+  const onChange = (event, selectedDate, type) => {
     setShowDatePicker(false);
-    // Verifique se o usuário selecionou uma data
     if (selectedDate) {
-      // Defina a data no estado apropriado (pickupDate ou returnDate)
-      // Você pode adicionar lógica adicional para diferenciar entre as datas se necessário
-      if (dateType === 'pickup') {
+      if (type === 'pickup') {
         setPickupDate(selectedDate);
-      } else if (dateType === 'return') {
+      } else if (type === 'return') {
         setReturnDate(selectedDate);
       }
     }
   };
 
-  
+  const handlePurchase = () => {
+    navigation.navigate('Success');
+    handleConfirmRent();
+  };
 
   return (
     <View>
+      <Text>{selectedCar.name}</Text>
+      <Text>Valor por dia: R$ {selectedCar.valorPorDia.toFixed(2)}</Text>
+
       <Text>Selecione as datas de retirada e devolução</Text>
 
-      <Button title={`Retirada: ${pickupDate ? pickupDate.toDateString() : 'Selecionar Data'}`} onPress={() => showDatepicker('pickup')} />
-      <Button title={`Devolução: ${returnDate ? returnDate.toDateString() : 'Selecionar Data'}`} onPress={() => showDatepicker('return')} />
+      <Button
+        title={`Retirada: ${pickupDate ? pickupDate.toDateString() : 'Selecionar Data'}`}
+        onPress={() => showDatepicker('pickup')}
+      />
+      <Button
+        title={`Devolução: ${returnDate ? returnDate.toDateString() : 'Selecionar Data'}`}
+        onPress={() => showDatepicker('return')}
+      />
 
       {showDatePicker && (
-        <DateTimePicker
-          value={new Date()}
-          mode="date"
-          display="default"
-          onChange={onChange}
-        />
-    )}
+        <DateTimePicker value={new Date()} mode="date" display="default" onChange={(event, selectedDate) => onChange(event, selectedDate, dateType)} />
+      )}
 
       <Button title="Confirmar Compra" onPress={handlePurchase} />
     </View>
   );
 }
-
-
